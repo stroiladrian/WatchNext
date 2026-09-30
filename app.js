@@ -54,7 +54,7 @@ function open(it) {
     <div><h3>${esc(it.title)}</h3>
     <div class="meta">${esc([fmtDate(it.date), it.runtime, (it.genres || []).join(', ')].filter(Boolean).join(' · '))}</div>
     <div class="score">${it.rt != null ? `<span>🍅 ${it.rt}%</span>` : ''}${it.tmdb ? `<span>★ ${it.tmdb}</span>` : ''}</div></div></div>
-    <p>${esc(it.overview || 'Fără descriere.')}</p>
+    ${it.overview ? `<p>${esc(it.overview)}</p>` : ''}
     <a class="rt" target="_blank" rel="noopener" href="https://www.rottentomatoes.com/search?search=${encodeURIComponent(it.title)}">Vezi pe Rotten Tomatoes →</a>`;
   $('#modal').hidden = false;
 }
@@ -73,7 +73,6 @@ $('#tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   state.type = b.dataset.type;
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
-  $('#heroSub').textContent = state.type === 'movie' ? 'Cele mai bine cotate din noutăți' : 'Cele mai bine cotate seriale noi';
   render();
 });
 $('#fBtn').onclick = () => { $('#filters').hidden = !$('#filters').hidden; };

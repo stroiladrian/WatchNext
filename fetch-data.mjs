@@ -61,10 +61,12 @@ async function collect(type) {
   for (const x of items) {
     const d = await tmdb(`/${type}/${x.id}`, { append_to_response: 'external_ids' });
     const key = `${type}:${x.id}`;
+    let overview = d.overview || x.overview;
+    if (!overview) overview = (await tmdb(`/${type}/${x.id}`, { language: 'en-US' })).overview || '';
     const { rt, rtAt } = await rtScore(d.external_ids?.imdb_id, key);
     const mins = type === 'movie' ? d.runtime : d.episode_run_time?.[0];
     out.push({
-      key, title: d.title || d.name, overview: d.overview || x.overview,
+      key, title: d.title || d.name, overview,
       poster: IMG + x.poster_path,
       date: d.release_date || d.first_air_date,
       year: (d.release_date || d.first_air_date || '').slice(0, 4),

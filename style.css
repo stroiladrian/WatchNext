@@ -11,10 +11,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tabs{display:flex;background:var(--card);border-radius:26px;padding:4px;margin:0 0 6px}
 .tabs button{flex:1;padding:11px 0;border-radius:22px;color:var(--mut);font-weight:700;font-size:15px;transition:background .15s,color .15s}
 .tabs button.on{background:var(--amber);color:#111}
-.hero-title{font-size:26px;font-weight:600;margin-top:14px}
-.hero-title span{color:var(--mut)}
-.sub{color:var(--amber);font-size:14px;margin:4px 0 14px}
-.hero{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:none}
+.hero{margin-top:16px;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:none}
 .hero::-webkit-scrollbar{display:none}
 .hero .card{flex:0 0 min(72%,250px);scroll-snap-align:start}
 .hero .poster{aspect-ratio:2/3;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
