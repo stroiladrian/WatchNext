@@ -1,5 +1,5 @@
 const $ = s => document.querySelector(s);
-const state = { type: 'movie', sort: 'rt', min: 0, provider: '', data: { movie: [], tv: [] } };
+const state = { type: 'movie', sort: 'rt', min: 0, provider: '', genre: '', data: { movie: [], tv: [] } };
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -24,7 +24,22 @@ function card(it, i) {
     <div class="m"><span class="meta">${esc(meta)}</span>${badge(it)}</div></button>`;
 }
 
-const byProvider = list => state.provider ? list.filter(x => (x.providers || []).includes(state.provider)) : list;
+// TMDB names genres differently for films/series ("SF & Fantasy", "Acţiune & Aventuri", cedilla diacritics): split + normalise
+const GENRE_FIX = { 'Animaţie': 'Animație', 'Acţiune': 'Acțiune', 'Science Fiction': 'SF' };
+const genresOf = it => [...new Set((it.genres || []).flatMap(g => g.split(' & ')).map(g => GENRE_FIX[g.trim()] || g.trim()).filter(Boolean))];
+const byProvider = list => list
+  .filter(x => !state.provider || (x.providers || []).includes(state.provider))
+  .filter(x => !state.genre || genresOf(x).includes(state.genre));
+
+function renderGenres() {
+  const counts = {};
+  state.data[state.type].forEach(x => genresOf(x).forEach(g => { counts[g] = (counts[g] || 0) + 1; }));
+  const names = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  if (state.genre && !counts[state.genre]) state.genre = '';
+  $('#genreGroup').hidden = names.length === 0;
+  $('#genreChips').innerHTML = `<button data-g="" class="${state.genre ? '' : 'on'}">Toate</button>` +
+    names.map(n => `<button data-g="${esc(n)}" class="${state.genre === n ? 'on' : ''}">${esc(n)}<span class="n">${counts[n]}</span></button>`).join('');
+}
 
 function renderProviders() {
   const counts = {};
@@ -37,7 +52,7 @@ function renderProviders() {
 }
 
 function renderFilterBtn() {
-  const n = (state.min ? 1 : 0) + (state.provider ? 1 : 0) + (state.sort !== 'rt' ? 1 : 0);
+  const n = (state.min ? 1 : 0) + (state.provider ? 1 : 0) + (state.genre ? 1 : 0) + (state.sort !== 'rt' ? 1 : 0);
   $('#fCount').hidden = n === 0; $('#fCount').textContent = n;
   $('#fBtn').classList.toggle('active', n > 0 && $('#filters').hidden);
   $('#fBtn').classList.toggle('open', !$('#filters').hidden);
@@ -58,6 +73,7 @@ function filtered() {
 
 function render() {
   renderProviders();
+  renderGenres();
   const list = filtered();
   $('#listTitle').textContent = state.type === 'movie' ? 'Toate Filmele' : 'Toate Serialele';
   $('#grid').innerHTML = list.map(card).join('');
@@ -75,7 +91,7 @@ function open(it) {
   $('#sheet').innerHTML = `<button class="close" aria-label="Închide">×</button>
     <div class="big"><div class="poster">${img}</div>
     <div><h3>${esc(it.title)}</h3>
-    <div class="meta">${esc([fmtDate(it.date), it.runtime, (it.genres || []).join(', ')].filter(Boolean).join(' · '))}</div>
+    <div class="meta">${esc([fmtDate(it.date), it.runtime, genresOf(it).join(', ')].filter(Boolean).join(' · '))}</div>
     <div class="score">${it.rt != null ? `<span>🍅 ${it.rt}%</span>` : ''}${it.tmdb ? `<span>★ ${it.tmdb}</span>` : ''}</div></div></div>
     ${(it.providers || []).length ? `<div class="avail">Disponibil pe: <b>${esc(it.providers.join(', '))}</b></div>` : ''}
     ${it.overview ? `<p>${esc(it.overview)}</p>` : ''}
@@ -105,8 +121,13 @@ $('#provChips').addEventListener('click', e => {
   state.provider = b.dataset.p;
   render();
 });
+$('#genreChips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.genre = b.dataset.g;
+  render();
+});
 $('#resetF').onclick = () => {
-  state.sort = 'rt'; state.min = 0; state.provider = '';
+  state.sort = 'rt'; state.min = 0; state.provider = ''; state.genre = '';
   document.querySelectorAll('#sortChips button').forEach(x => x.classList.toggle('on', x.dataset.s === 'rt'));
   document.querySelectorAll('#minChips button').forEach(x => x.classList.toggle('on', x.dataset.m === '0'));
   render();
