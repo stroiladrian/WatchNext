@@ -52,3 +52,4 @@ footer{margin-top:40px;font-size:11px;color:#55555f;text-align:center;line-heigh
 .sheet .close{float:right;color:var(--mut);font-size:26px;line-height:1}
 .sheet a.rt{display:inline-block;margin-top:16px;color:var(--amber);font-size:14px}
 [hidden]{display:none !important}
+.badge .star{color:var(--amber)}

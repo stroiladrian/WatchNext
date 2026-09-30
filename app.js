@@ -4,16 +4,20 @@ const state = { type: 'movie', sort: 'rt', min: 0, q: '', data: { movie: [], tv:
 const fmtDate = d => d ? new Date(d).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-function badge(rt) {
-  if (rt == null) return '<span class="badge"><i class="dot none"></i>--</span>';
-  return `<span class="badge"><i class="dot ${rt < 60 ? 'rot' : ''}"></i>${rt}%</span>`;
+// Rotten Tomatoes % when known, otherwise the TMDB audience score (x10) so every title is rankable
+const score = it => it.rt ?? (it.tmdb ? it.tmdb * 10 : null);
+
+function badge(it) {
+  if (it.rt != null) return `<span class="badge"><i class="dot ${it.rt < 60 ? 'rot' : ''}"></i>${it.rt}%</span>`;
+  if (it.tmdb) return `<span class="badge" title="Scor audiență TMDB (fără scor Rotten Tomatoes)"><span class="star">★</span>${it.tmdb}</span>`;
+  return '<span class="badge"><i class="dot none"></i>--</span>';
 }
 
 function card(it, i) {
   const img = it.poster ? `<img src="${esc(it.poster)}" alt="">` : esc(it.title);
   const meta = [it.year, it.runtime].filter(Boolean).join(' · ');
   return `<button class="card" data-i="${i}">
-    <div class="poster">${img}${badge(it.rt)}</div>
+    <div class="poster">${img}${badge(it)}</div>
     <div class="t">${esc(it.title)}</div>
     <div class="m">${esc(meta)}</div></button>`;
 }
@@ -22,9 +26,9 @@ function filtered() {
   let list = state.data[state.type].slice();
   const q = state.q.trim().toLowerCase();
   if (q) list = list.filter(x => x.title.toLowerCase().includes(q));
-  if (state.min) list = list.filter(x => (x.rt ?? -1) >= state.min);
+  if (state.min) list = list.filter(x => (score(x) ?? -1) >= state.min);
   const by = {
-    rt: (a, b) => (b.rt ?? -1) - (a.rt ?? -1),
+    rt: (a, b) => (score(b) ?? -1) - (score(a) ?? -1),
     new: (a, b) => (b.date || '').localeCompare(a.date || ''),
     pop: (a, b) => (b.popularity || 0) - (a.popularity || 0),
   }[state.sort];
@@ -36,7 +40,7 @@ function render() {
   $('#listTitle').textContent = state.type === 'movie' ? 'Toate Filmele' : 'Toate Serialele';
   $('#grid').innerHTML = list.map(card).join('');
   $('#empty').hidden = list.length > 0;
-  const top = state.data[state.type].filter(x => x.rt != null).sort((a, b) => b.rt - a.rt).slice(0, 6);
+  const top = state.data[state.type].filter(x => score(x) != null).sort((a, b) => score(b) - score(a)).slice(0, 6);
   $('#heroSec').hidden = !!state.q || top.length === 0;
   $('#hero').innerHTML = top.map((it, i) => card(it, 'h' + i)).join('');
   $('#hero').__top = top;
@@ -49,7 +53,7 @@ function open(it) {
     <div class="big"><div class="poster">${img}</div>
     <div><h3>${esc(it.title)}</h3>
     <div class="meta">${esc([fmtDate(it.date), it.runtime, (it.genres || []).join(', ')].filter(Boolean).join(' · '))}</div>
-    <div class="score"><span>🍅 ${it.rt != null ? it.rt + '%' : '--'}</span>${it.tmdb ? `<span>★ ${it.tmdb}</span>` : ''}</div></div></div>
+    <div class="score">${it.rt != null ? `<span>🍅 ${it.rt}%</span>` : ''}${it.tmdb ? `<span>★ ${it.tmdb}</span>` : ''}</div></div></div>
     <p>${esc(it.overview || 'Fără descriere.')}</p>
     <a class="rt" target="_blank" rel="noopener" href="https://www.rottentomatoes.com/search?search=${encodeURIComponent(it.title)}">Vezi pe Rotten Tomatoes →</a>`;
   $('#modal').hidden = false;
