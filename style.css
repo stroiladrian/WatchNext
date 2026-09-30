@@ -5,6 +5,8 @@ body{font-family:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .app{max-width:760px;margin:0 auto;padding:20px 20px 40px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:54px;height:54px;border-radius:12px;flex:none}
 .logo{font-weight:900;font-size:30px;line-height:.9;letter-spacing:-1px;color:var(--orange)}
 .logo span{color:var(--amber)}
 .updated{font-size:11px;color:var(--mut);text-align:right}
