@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#121216">
 <title>WatchNext – ce merită văzut acum</title>
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 <div class="app">
@@ -26,33 +26,39 @@
   <section>
     <div class="row-head">
       <h2 id="listTitle">Toate Filmele</h2>
-      <button class="filters-btn" id="fBtn">Filtre
-        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 6h10M4 12h7M4 18h4M18 5v13m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <button class="filters-btn" id="fBtn" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 6h10M4 12h7M4 18h4M18 5v13m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        <span>Filtre</span><span class="fcount" id="fCount" hidden></span>
       </button>
     </div>
     <div class="filters" id="filters" hidden>
-      <div class="chips" id="sortChips">
-        <button data-s="rt" class="on">Rating RT</button>
-        <button data-s="new">Cele mai noi</button>
-        <button data-s="pop">Populare</button>
-      </div>
-      <div class="chips" id="minChips">
-        <button data-m="0" class="on">Toate</button>
-        <button data-m="60">60%+</button>
-        <button data-m="75">75%+</button>
-        <button data-m="90">90%+</button>
-      </div>
+      <div class="fgroup"><span class="flabel">Sortare</span>
+        <div class="chips" id="sortChips">
+          <button data-s="rt" class="on">Rating</button>
+          <button data-s="new">Cele mai noi</button>
+          <button data-s="pop">Populare</button>
+        </div></div>
+      <div class="fgroup"><span class="flabel">Scor minim</span>
+        <div class="chips" id="minChips">
+          <button data-m="0" class="on">Toate</button>
+          <button data-m="60">60%+</button>
+          <button data-m="75">75%+</button>
+          <button data-m="90">90%+</button>
+        </div></div>
+      <div class="fgroup" id="provGroup"><span class="flabel">Platformă</span>
+        <div class="chips" id="provChips"></div></div>
+      <button class="reset" id="resetF" hidden>Resetează filtrele</button>
     </div>
     <div class="grid" id="grid"></div>
     <p class="empty" id="empty" hidden>Nimic găsit.</p>
   </section>
 
-  <footer>Scoruri: Rotten Tomatoes (prin OMDb) · Date: TMDB · Aplicație independentă, neafiliată.</footer>
+  <footer>Scoruri: Rotten Tomatoes (prin OMDb) · Date: TMDB · Disponibilitate: JustWatch (prin TMDB) · Aplicație independentă, neafiliată.</footer>
 </div>
 
 <div class="modal" id="modal" hidden>
   <div class="sheet" id="sheet"></div>
 </div>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>

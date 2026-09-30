@@ -1,5 +1,5 @@
 const $ = s => document.querySelector(s);
-const state = { type: 'movie', sort: 'rt', min: 0, data: { movie: [], tv: [] } };
+const state = { type: 'movie', sort: 'rt', min: 0, provider: '', data: { movie: [], tv: [] } };
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -24,8 +24,29 @@ function card(it, i) {
     <div class="m"><span class="meta">${esc(meta)}</span>${badge(it)}</div></button>`;
 }
 
+const byProvider = list => state.provider ? list.filter(x => (x.providers || []).includes(state.provider)) : list;
+
+function renderProviders() {
+  const counts = {};
+  state.data[state.type].forEach(x => (x.providers || []).forEach(p => { counts[p] = (counts[p] || 0) + 1; }));
+  const names = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  if (state.provider && !counts[state.provider]) state.provider = '';
+  $('#provGroup').hidden = names.length === 0;
+  $('#provChips').innerHTML = `<button data-p="" class="${state.provider ? '' : 'on'}">Toate</button>` +
+    names.map(n => `<button data-p="${esc(n)}" class="${state.provider === n ? 'on' : ''}">${esc(n)}<span class="n">${counts[n]}</span></button>`).join('');
+}
+
+function renderFilterBtn() {
+  const n = (state.min ? 1 : 0) + (state.provider ? 1 : 0) + (state.sort !== 'rt' ? 1 : 0);
+  $('#fCount').hidden = n === 0; $('#fCount').textContent = n;
+  $('#fBtn').classList.toggle('active', n > 0 && $('#filters').hidden);
+  $('#fBtn').classList.toggle('open', !$('#filters').hidden);
+  $('#fBtn').setAttribute('aria-expanded', String(!$('#filters').hidden));
+  $('#resetF').hidden = n === 0;
+}
+
 function filtered() {
-  let list = state.data[state.type].slice();
+  let list = byProvider(state.data[state.type]).slice();
   if (state.min) list = list.filter(x => (score(x) ?? -1) >= state.min);
   const by = {
     rt: (a, b) => (score(b) ?? -1) - (score(a) ?? -1),
@@ -36,15 +57,17 @@ function filtered() {
 }
 
 function render() {
+  renderProviders();
   const list = filtered();
   $('#listTitle').textContent = state.type === 'movie' ? 'Toate Filmele' : 'Toate Serialele';
   $('#grid').innerHTML = list.map(card).join('');
   $('#empty').hidden = list.length > 0;
-  const top = state.data[state.type].filter(x => score(x) != null).sort((a, b) => score(b) - score(a)).slice(0, 6);
+  const top = byProvider(state.data[state.type]).filter(x => score(x) != null).sort((a, b) => score(b) - score(a)).slice(0, 6);
   $('#heroSec').hidden = top.length === 0;
   $('#hero').innerHTML = top.map((it, i) => card(it, 'h' + i)).join('');
   $('#hero').__top = top;
   $('#grid').__list = list;
+  renderFilterBtn();
 }
 
 function open(it) {
@@ -54,6 +77,7 @@ function open(it) {
     <div><h3>${esc(it.title)}</h3>
     <div class="meta">${esc([fmtDate(it.date), it.runtime, (it.genres || []).join(', ')].filter(Boolean).join(' · '))}</div>
     <div class="score">${it.rt != null ? `<span>🍅 ${it.rt}%</span>` : ''}${it.tmdb ? `<span>★ ${it.tmdb}</span>` : ''}</div></div></div>
+    ${(it.providers || []).length ? `<div class="avail">Disponibil pe: <b>${esc(it.providers.join(', '))}</b></div>` : ''}
     ${it.overview ? `<p>${esc(it.overview)}</p>` : ''}
     <a class="rt" target="_blank" rel="noopener" href="https://www.rottentomatoes.com/search?search=${encodeURIComponent(it.title)}">Vezi pe Rotten Tomatoes →</a>`;
   $('#modal').hidden = false;
@@ -75,7 +99,18 @@ $('#tabs').addEventListener('click', e => {
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
   render();
 });
-$('#fBtn').onclick = () => { $('#filters').hidden = !$('#filters').hidden; };
+$('#fBtn').onclick = () => { $('#filters').hidden = !$('#filters').hidden; renderFilterBtn(); };
+$('#provChips').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.provider = b.dataset.p;
+  render();
+});
+$('#resetF').onclick = () => {
+  state.sort = 'rt'; state.min = 0; state.provider = '';
+  document.querySelectorAll('#sortChips button').forEach(x => x.classList.toggle('on', x.dataset.s === 'rt'));
+  document.querySelectorAll('#minChips button').forEach(x => x.classList.toggle('on', x.dataset.m === '0'));
+  render();
+};
 $('#sortChips').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   state.sort = b.dataset.s;

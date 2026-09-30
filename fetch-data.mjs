@@ -40,6 +40,9 @@ async function rtScore(imdb, key) {
   } catch (e) { omdbError = String(e.message || e); return keep; }
 }
 
+// normalise TMDB provider names so "Netflix Standard with Ads" and "Netflix" become one chip
+const PROV_RENAME = { 'Amazon Prime Video': 'Prime Video', 'Amazon Video': 'Prime Video', 'Disney Plus': 'Disney+', 'Apple TV Plus': 'Apple TV+', 'Apple TV': 'Apple TV+', 'HBO Max': 'HBO Max', 'Max': 'HBO Max' };
+const normProv = n => { const s = n.replace(/\s+(Standard )?with Ads$/i, '').trim(); return PROV_RENAME[s] || s; };
 const dstr = off => new Date(Date.now() + off * 864e5).toISOString().slice(0, 10);
 
 async function collect(type) {
@@ -59,11 +62,13 @@ async function collect(type) {
   const items = [...seen.values()].filter(recent).sort((a, b) => b.popularity - a.popularity).slice(0, MAX);
   const out = [];
   for (const x of items) {
-    const d = await tmdb(`/${type}/${x.id}`, { append_to_response: 'external_ids' });
+    const d = await tmdb(`/${type}/${x.id}`, { append_to_response: 'external_ids,watch/providers' });
     const key = `${type}:${x.id}`;
     let overview = d.overview || x.overview;
     if (!overview) overview = (await tmdb(`/${type}/${x.id}`, { language: 'en-US' })).overview || '';
     const { rt, rtAt } = await rtScore(d.external_ids?.imdb_id, key);
+    const wp = d['watch/providers']?.results?.[REGION];
+    const providers = [...new Set([...(wp?.flatrate || []), ...(wp?.ads || []), ...(wp?.free || [])].map(p => normProv(p.provider_name)))];
     const mins = type === 'movie' ? d.runtime : d.episode_run_time?.[0];
     out.push({
       key, title: d.title || d.name, overview,
@@ -73,7 +78,7 @@ async function collect(type) {
       runtime: mins ? (mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`) : (type === 'tv' && d.number_of_seasons ? `${d.number_of_seasons} sez.` : ''),
       genres: (d.genres || []).map(g => g.name),
       tmdb: d.vote_average ? +d.vote_average.toFixed(1) : null, votes: d.vote_count || 0,
-      popularity: x.popularity, rt, rtAt,
+      popularity: x.popularity, providers, rt, rtAt,
     });
   }
   return out;
