@@ -10,7 +10,7 @@ function badge(rt) {
 }
 
 function card(it, i) {
-  const img = it.poster ? `<img loading="lazy" src="${esc(it.poster)}" alt="">` : esc(it.title);
+  const img = it.poster ? `<img src="${esc(it.poster)}" alt="">` : esc(it.title);
   const meta = [it.year, it.runtime].filter(Boolean).join(' · ');
   return `<button class="card" data-i="${i}">
     <div class="poster">${img}${badge(it.rt)}</div>

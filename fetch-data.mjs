@@ -19,19 +19,25 @@ const tmdb = async (path, params = {}) => {
 let old = { movies: [], tv: [] };
 try { old = JSON.parse(await readFile('data.json', 'utf8')); } catch {}
 const cache = new Map([...old.movies, ...old.tv].map(x => [x.key, x]));
-let omdbCalls = 0, omdbDead = false;
+let omdbCalls = 0, omdbDead = false, omdbError = null, noRt = 0;
 
 async function rtScore(imdb, key) {
   const prev = cache.get(key);
-  const fresh = prev && prev.rtAt && Date.now() - prev.rtAt < 3 * 864e5;
-  if (fresh || !OMDB || !imdb || omdbDead) return { rt: prev?.rt ?? null, rtAt: prev?.rtAt };
+  const keep = { rt: prev?.rt ?? null, rtAt: prev?.rtAt };
+  const ttl = prev?.rt != null ? 3 * 864e5 : 864e5;
+  if ((prev?.rtAt && Date.now() - prev.rtAt < ttl) || !OMDB || !imdb || omdbDead) return keep;
   omdbCalls++;
   try {
     const j = await (await fetch(`https://www.omdbapi.com/?i=${imdb}&apikey=${OMDB}`)).json();
-    if (/limit/i.test(j.Error || '')) { omdbDead = true; return { rt: prev?.rt ?? null, rtAt: prev?.rtAt }; }
+    if (j.Response === 'False') {            // key/limit problem: do not cache, stop hammering
+      omdbError = j.Error || 'unknown OMDb error';
+      if (/key|limit/i.test(omdbError)) omdbDead = true;
+      return keep;
+    }
     const v = (j.Ratings || []).find(r => r.Source === 'Rotten Tomatoes')?.Value;
+    if (!v) noRt++;
     return { rt: v ? parseInt(v) : null, rtAt: Date.now() };
-  } catch { return { rt: prev?.rt ?? null, rtAt: prev?.rtAt }; }
+  } catch (e) { omdbError = String(e.message || e); return keep; }
 }
 
 async function collect(type) {
@@ -43,7 +49,12 @@ async function collect(type) {
     const j = await tmdb(p, extra);
     for (const x of j.results) if (!seen.has(x.id) && x.poster_path) seen.set(x.id, x);
   }
-  const items = [...seen.values()].sort((a, b) => b.popularity - a.popularity).slice(0, MAX);
+  const now = Date.now(), day = 864e5;
+  const dateOf = x => Date.parse(x.release_date || x.first_air_date || '') || 0;
+  const recent = x => type === 'movie'
+    ? dateOf(x) >= now - 120 * day && dateOf(x) <= now + 30 * day
+    : dateOf(x) >= now - 240 * day && dateOf(x) <= now + 30 * day;
+  const items = [...seen.values()].filter(recent).sort((a, b) => b.popularity - a.popularity).slice(0, MAX);
   const out = [];
   for (const x of items) {
     const d = await tmdb(`/${type}/${x.id}`, { append_to_response: 'external_ids' });
@@ -65,5 +76,5 @@ async function collect(type) {
 }
 
 const movies = await collect('movie'), tv = await collect('tv');
-await writeFile('data.json', JSON.stringify({ updated: new Date().toISOString(), movies, tv }));
-console.log(`OK: ${movies.length} filme, ${tv.length} seriale, ${omdbCalls} apeluri OMDb`);
+await writeFile('data.json', JSON.stringify({ updated: new Date().toISOString(), omdbError, movies, tv }));
+console.log(`OK: ${movies.length} filme, ${tv.length} seriale, ${omdbCalls} apeluri OMDb, fara RT: ${noRt}, eroare OMDb: ${omdbError || 'nu'}`);
