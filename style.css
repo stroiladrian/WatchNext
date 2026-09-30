@@ -18,7 +18,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .sub{color:var(--amber);font-size:14px;margin:4px 0 14px}
 .hero{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:none}
 .hero::-webkit-scrollbar{display:none}
-.hero .card{flex:0 0 72%;max-width:340px;scroll-snap-align:start}
+.hero .card{flex:0 0 min(72%,250px);scroll-snap-align:start}
 .hero .poster{aspect-ratio:2/3;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
 .row-head{display:flex;justify-content:space-between;align-items:center;margin:26px 0 16px}
 .row-head h2{font-size:24px;font-weight:600}
