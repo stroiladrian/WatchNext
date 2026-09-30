@@ -124,12 +124,25 @@ $('#minChips').addEventListener('click', e => {
   render();
 });
 
-fetch('data.json', { cache: 'no-cache' })
-  .then(r => r.json())
-  .then(d => {
-    state.data = { movie: d.movies || [], tv: d.tv || [] };
-    if (d.updated) $('#updated').textContent = 'Actualizat ' + new Date(d.updated).toLocaleString('ro-RO', { dateStyle: 'medium', timeStyle: 'short' });
-    if (d.demo) $('#updated').textContent = 'Date demo – rulează scriptul de update';
-    render();
-  })
-  .catch(() => { $('#empty').hidden = false; $('#empty').textContent = 'Nu s-au putut încărca datele.'; });
+let lastSig = '';
+function load() {
+  return fetch('data.json', { cache: 'no-cache' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.updated) $('#updated').textContent = 'Actualizat ' + new Date(d.updated).toLocaleString('ro-RO', { dateStyle: 'medium', timeStyle: 'short' });
+      if (d.demo) $('#updated').textContent = 'Date demo – rulează scriptul de update';
+      const sig = JSON.stringify([d.movies, d.tv]);
+      if (sig === lastSig) return;              // nothing new: leave the page untouched
+      lastSig = sig;
+      state.data = { movie: d.movies || [], tv: d.tv || [] };
+      render();
+    })
+    .catch(() => { if (!lastSig) { $('#empty').hidden = false; $('#empty').textContent = 'Nu s-au putut încărca datele.'; } });
+}
+const EVERY = 18 * 60 * 1000;
+let lastLoad = Date.now();
+load();
+setInterval(() => { lastLoad = Date.now(); load(); }, EVERY);
+document.addEventListener('visibilitychange', () => {   // returning to a tab that slept in the background
+  if (!document.hidden && Date.now() - lastLoad >= EVERY) { lastLoad = Date.now(); load(); }
+});

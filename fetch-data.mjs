@@ -85,5 +85,8 @@ async function collect(type) {
 }
 
 const movies = await collect('movie'), tv = await collect('tv');
-await writeFile('data.json', JSON.stringify({ updated: new Date().toISOString(), omdbError, movies, tv }));
+// only rewrite (=> new commit + Pages rebuild) when the content actually changed
+const sig = o => JSON.stringify([o.movies, o.tv, o.omdbError ?? null]);
+if (sig(old) !== sig({ movies, tv, omdbError })) await writeFile('data.json', JSON.stringify({ updated: new Date().toISOString(), omdbError, movies, tv }));
+else console.log('Fara schimbari.');
 console.log(`OK: ${movies.length} filme, ${tv.length} seriale, ${omdbCalls} apeluri OMDb, fara RT: ${noRt}, eroare OMDb: ${omdbError || 'nu'}`);

@@ -1,6 +1,6 @@
 name: Update data
 on:
-  schedule: [{ cron: '0 5,11,17 * * *' }]   # 3x/day UTC; or trigger via cron-job.org like Stirile Libere
+  schedule: [{ cron: '*/18 * * * *' }]   # every 18 min (GitHub may delay scheduled runs)
   workflow_dispatch:
 permissions:
   contents: write
