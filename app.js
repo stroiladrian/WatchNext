@@ -19,9 +19,9 @@ function card(it, i) {
   const img = it.poster ? `<img src="${esc(it.poster)}" alt="">` : esc(it.title);
   const meta = [it.year, it.runtime].filter(Boolean).join(' · ');
   return `<button class="card" data-i="${i}">
-    <div class="poster">${img}${badge(it)}</div>
+    <div class="poster">${img}</div>
     <div class="t">${esc(it.title)}</div>
-    <div class="m">${esc(meta)}</div></button>`;
+    <div class="m"><span class="meta">${esc(meta)}</span>${badge(it)}</div></button>`;
 }
 
 function filtered() {
