@@ -70,7 +70,7 @@ async function collect(type) {
       year: (d.release_date || d.first_air_date || '').slice(0, 4),
       runtime: mins ? (mins >= 60 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : `${mins}m`) : (type === 'tv' && d.number_of_seasons ? `${d.number_of_seasons} sez.` : ''),
       genres: (d.genres || []).map(g => g.name),
-      tmdb: d.vote_average ? +d.vote_average.toFixed(1) : null,
+      tmdb: d.vote_average ? +d.vote_average.toFixed(1) : null, votes: d.vote_count || 0,
       popularity: x.popularity, rt, rtAt,
     });
   }

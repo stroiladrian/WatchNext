@@ -5,11 +5,13 @@ const fmtDate = d => d ? new Date(d).toLocaleDateString('ro-RO', { day: 'numeric
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // Rotten Tomatoes % when known, otherwise the TMDB audience score (x10) so every title is rankable
-const score = it => it.rt ?? (it.tmdb ? it.tmdb * 10 : null);
+const MIN_VOTES = 30;
+const audience = it => (it.tmdb && (it.votes ?? 0) >= MIN_VOTES ? it.tmdb : null);
+const score = it => it.rt ?? (audience(it) != null ? audience(it) * 10 : null);
 
 function badge(it) {
   if (it.rt != null) return `<span class="badge"><i class="dot ${it.rt < 60 ? 'rot' : ''}"></i>${it.rt}%</span>`;
-  if (it.tmdb) return `<span class="badge" title="Scor audiență TMDB (fără scor Rotten Tomatoes)"><span class="star">★</span>${it.tmdb}</span>`;
+  if (audience(it) != null) return `<span class="badge" title="Scor audiență TMDB (fără scor Rotten Tomatoes)"><span class="star">★</span>${it.tmdb}</span>`;
   return '<span class="badge"><i class="dot none"></i>--</span>';
 }
 
