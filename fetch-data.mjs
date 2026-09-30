@@ -40,10 +40,12 @@ async function rtScore(imdb, key) {
   } catch (e) { omdbError = String(e.message || e); return keep; }
 }
 
+const dstr = off => new Date(Date.now() + off * 864e5).toISOString().slice(0, 10);
+
 async function collect(type) {
   const lists = type === 'movie'
-    ? [['/movie/now_playing', { region: REGION }], ['/movie/upcoming', { region: REGION }], ['/trending/movie/week']]
-    : [['/tv/on_the_air'], ['/tv/airing_today'], ['/trending/tv/week']];
+    ? [['/movie/now_playing', { region: REGION }], ['/discover/movie', { sort_by: 'popularity.desc', 'primary_release_date.gte': dstr(-120), 'primary_release_date.lte': dstr(30) }], ['/discover/movie', { page: 2, sort_by: 'popularity.desc', 'primary_release_date.gte': dstr(-120), 'primary_release_date.lte': dstr(30) }], ['/movie/upcoming', { region: REGION }], ['/trending/movie/week']]
+    : [['/tv/on_the_air'], ['/discover/tv', { sort_by: 'popularity.desc', 'first_air_date.gte': dstr(-240) }], ['/discover/tv', { page: 2, sort_by: 'popularity.desc', 'first_air_date.gte': dstr(-240) }], ['/tv/airing_today'], ['/trending/tv/week']];
   const seen = new Map();
   for (const [p, extra] of lists) {
     const j = await tmdb(p, extra);
