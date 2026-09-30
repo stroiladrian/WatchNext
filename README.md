@@ -1,6 +1,6 @@
 # WatchNext
 
-Simple dark/amber web app (styled after your CinemaCity designs): see the best-rated new movies and shows, with Rotten Tomatoes scores.
+Simple dark/amber web app: see the best-rated new movies and shows, with Rotten Tomatoes scores.
 
 ## Free setup (no paid services)
 1. Free API keys:
