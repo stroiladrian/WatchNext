@@ -1,5 +1,5 @@
 const $ = s => document.querySelector(s);
-const state = { type: 'movie', sort: 'rt', min: 0, q: '', data: { movie: [], tv: [] } };
+const state = { type: 'movie', sort: 'rt', min: 0, data: { movie: [], tv: [] } };
 
 const fmtDate = d => d ? new Date(d).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -26,8 +26,6 @@ function card(it, i) {
 
 function filtered() {
   let list = state.data[state.type].slice();
-  const q = state.q.trim().toLowerCase();
-  if (q) list = list.filter(x => x.title.toLowerCase().includes(q));
   if (state.min) list = list.filter(x => (score(x) ?? -1) >= state.min);
   const by = {
     rt: (a, b) => (score(b) ?? -1) - (score(a) ?? -1),
@@ -43,7 +41,7 @@ function render() {
   $('#grid').innerHTML = list.map(card).join('');
   $('#empty').hidden = list.length > 0;
   const top = state.data[state.type].filter(x => score(x) != null).sort((a, b) => score(b) - score(a)).slice(0, 6);
-  $('#heroSec').hidden = !!state.q || top.length === 0;
+  $('#heroSec').hidden = top.length === 0;
   $('#hero').innerHTML = top.map((it, i) => card(it, 'h' + i)).join('');
   $('#hero').__top = top;
   $('#grid').__list = list;
@@ -91,7 +89,6 @@ $('#minChips').addEventListener('click', e => {
   document.querySelectorAll('#minChips button').forEach(x => x.classList.toggle('on', x === b));
   render();
 });
-$('#q').addEventListener('input', e => { state.q = e.target.value; render(); });
 
 fetch('data.json', { cache: 'no-cache' })
   .then(r => r.json())
