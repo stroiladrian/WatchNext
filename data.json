@@ -1,0 +1,21 @@
+{"demo":true,"movies":[
+{"title":"Primetime","year":"2025","rt":88,"overview":"Date demo din screenshot-ul tău."},
+{"title":"Heart of the Beast","year":"2025","rt":86,"overview":"Date demo din screenshot-ul tău."},
+{"title":"Digger","year":"2026","rt":null,"overview":"Date demo."},
+{"title":"Verity","year":"2026","rt":null,"overview":"Date demo."},
+{"title":"Donnie Darko","year":"2001","rt":null,"overview":"Date demo."}
+],"tv":[
+{"title":"Slow Horses","year":"S6","rt":100,"overview":"Date demo."},
+{"title":"A Killer Story","year":"S1","rt":100,"overview":"Date demo."},
+{"title":"Youth","year":"S1","rt":96,"overview":"Date demo."},
+{"title":"Neagley","year":"S1","rt":94,"overview":"Date demo."},
+{"title":"Tip Toe","year":"S1","rt":94,"overview":"Date demo."},
+{"title":"Lanterns","year":"S1","rt":92,"overview":"Date demo."},
+{"title":"MobLand","year":"S2","rt":90,"overview":"Date demo."},
+{"title":"American Hostage","year":"S1","rt":88,"overview":"Date demo."},
+{"title":"War","year":"S1","rt":88,"overview":"Date demo."},
+{"title":"American Horror Story: 13","year":"S13","rt":83,"overview":"Date demo."},
+{"title":"Brothers","year":"S1","rt":62,"overview":"Date demo."},
+{"title":"Kill Jackie","year":"S1","rt":44,"overview":"Date demo."},
+{"title":"East of Eden","year":"S1","rt":null,"overview":"Date demo."}
+]}

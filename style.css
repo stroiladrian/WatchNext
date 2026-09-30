@@ -1,0 +1,53 @@
+:root{--bg:#121216;--card:#1c1c22;--txt:#f4f4f6;--mut:#8b8b96;--amber:#f5a300;--orange:#f47b20;--fresh:#fa320a;--rot:#6bb43a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{font-family:Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.app{max-width:760px;margin:0 auto;padding:20px 20px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.logo{font-weight:900;font-size:30px;line-height:.9;letter-spacing:-1px;color:var(--orange)}
+.logo span{color:var(--amber)}
+.updated{font-size:11px;color:var(--mut);text-align:right}
+.search{display:flex;align-items:center;gap:10px;background:#fff;color:#777;border-radius:24px;padding:0 16px;height:44px}
+.search input{flex:1;border:0;outline:0;background:none;font:inherit;font-size:15px;color:#222;min-width:0}
+.tabs{display:flex;gap:8px;margin:20px 0 8px}
+.tabs button{padding:8px 18px;border-radius:20px;background:var(--card);color:var(--mut);font-weight:600;font-size:14px}
+.tabs button.on{background:var(--amber);color:#111}
+.hero-title{font-size:26px;font-weight:600;margin-top:14px}
+.hero-title span{color:var(--mut)}
+.sub{color:var(--amber);font-size:14px;margin:4px 0 14px}
+.hero{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 18px;scrollbar-width:none}
+.hero::-webkit-scrollbar{display:none}
+.hero .card{flex:0 0 72%;max-width:340px;scroll-snap-align:start}
+.hero .poster{aspect-ratio:2/3;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.row-head{display:flex;justify-content:space-between;align-items:center;margin:26px 0 16px}
+.row-head h2{font-size:24px;font-weight:600}
+.filters-btn{display:flex;align-items:center;gap:10px;font-size:14px}
+.filters{margin-bottom:16px;display:grid;gap:8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:6px 14px;border-radius:16px;border:1px solid #333;font-size:13px;color:var(--mut)}
+.chips button.on{border-color:var(--amber);color:var(--amber)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 14px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{cursor:pointer;text-align:left;display:block;width:100%}
+.poster{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,#2a2a33,#17171c);display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font-weight:800;color:#555;font-size:13px}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.badge{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.78);backdrop-filter:blur(4px);border-radius:10px;padding:3px 8px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--fresh)}
+.dot.rot{background:var(--rot)}
+.dot.none{background:#666}
+.card .t{font-size:13px;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .m{font-size:12px;color:var(--mut);margin-top:3px}
+.empty{color:var(--mut);text-align:center;padding:40px 0}
+footer{margin-top:40px;font-size:11px;color:#55555f;text-align:center;line-height:1.5}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.modal[hidden]{display:none}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:90vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px}
+.sheet .big{display:flex;gap:16px}
+.sheet .big .poster{width:130px;flex:none}
+.sheet h3{font-size:22px;margin-bottom:6px}
+.sheet .meta{color:var(--mut);font-size:13px;margin-bottom:10px}
+.sheet .score{display:flex;gap:16px;margin:8px 0;font-size:15px;font-weight:700}
+.sheet p{font-size:14px;line-height:1.55;color:#cfcfd6;margin-top:14px}
+.sheet .close{float:right;color:var(--mut);font-size:26px;line-height:1}
+.sheet a.rt{display:inline-block;margin-top:16px;color:var(--amber);font-size:14px}
